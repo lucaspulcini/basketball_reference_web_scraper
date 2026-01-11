@@ -1,7 +1,7 @@
 import requests
 from lxml import html
 
-from basketball_reference_web_scraper.data import TEAM_TO_TEAM_ABBREVIATION, TeamTotal, PlayerData
+from basketball_reference_web_scraper.data import TEAM_TO_TEAM_ABBREVIATION, TEAM_ABBREVIATIONS_TO_TEAM, TeamTotal, PlayerData, Location, Overtime
 from basketball_reference_web_scraper.errors import InvalidDate, InvalidPlayerAndSeason
 from basketball_reference_web_scraper.html import DailyLeadersPage, PlayerSeasonBoxScoresPage, PlayerSeasonTotalTable, \
     PlayerAdvancedSeasonTotalsTable, PlayByPlayPage, SchedulePage, BoxScoresPage, DailyBoxScoresPage, SearchPage, \
@@ -169,15 +169,28 @@ class HTTPService:
         response.raise_for_status()
 
         page = BoxScoresPage(html.fromstring(response.content))
+        team_location = page.team_location
+        went_to_overtime = page.overtime
+        
         combined_team_totals = [
             TeamTotal(team_abbreviation=table.team_abbreviation, totals=table.team_totals)
             for table in page.basic_statistics_tables
         ]
 
-        return self.parser.parse_team_totals(
+        team_stats = self.parser.parse_team_totals(
             first_team_totals=combined_team_totals[0],
             second_team_totals=combined_team_totals[1],
         )
+        
+        for team in team_stats:
+            # if TEAM_ABBREVIATIONS_TO_TEAM[team_location[0]] == team['team']:
+            #     team["location"] = Location.AWAY 
+            # elif TEAM_ABBREVIATIONS_TO_TEAM[team_location[1]] == team['team']:
+            #     team["location"] = Location.HOME 
+            team["location"] = Location.AWAY if team['team'] == TEAM_ABBREVIATIONS_TO_TEAM[team_location[0]] else Location.HOME
+            team["overtime"] = Overtime.TRUE if went_to_overtime else Overtime.FALSE
+
+        return team_stats
 
     def team_box_scores(self, day, month, year):
         url = "{BASE_URL}/boxscores/".format(BASE_URL=HTTPService.BASE_URL)

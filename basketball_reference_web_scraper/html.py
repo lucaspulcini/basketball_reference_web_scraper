@@ -836,6 +836,67 @@ class BoxScoresPage:
             if table.has_basic_statistics is True
         ]
 
+    @property
+    def team_location(self):
+        tables = self.html.xpath('//table[@id="line_score"]')
+        
+        if not tables:
+            comments = self.html.xpath('//comment()')
+            for c in comments:
+                if 'id="line_score"' in c.text:
+                    try:
+                        table = html.fromstring(c.text).xpath('//table[@id="line_score"]')[0]
+                        tables = [table]
+                        break
+                    except Exception:
+                        continue
+
+        if not tables:
+            return {}
+
+        table = tables[0]
+        rows = table.xpath('.//tbody/tr')
+
+        if len(rows) < 2:
+            return {}
+        
+        away_team_name = rows[0].xpath('.//th[@data-stat="team"]/a/text()')[0]
+        home_team_name = rows[1].xpath('.//th[@data-stat="team"]/a/text()')[0]
+
+        return [away_team_name, home_team_name]
+
+    @property
+    def overtime(self):
+        tables = self.html.xpath('//table[@id="line_score"]')
+
+        if not tables:
+            comments = self.html.xpath('//comment()')
+            for c in comments:
+                if 'id="line_score"' in c.text:
+                    try:
+                        table = html.fromstring(c.text).xpath('//table[@id="line_score"]')[0]
+                        tables = [table]
+                        break
+                    except Exception:
+                        continue
+
+        if not tables:
+            return False
+
+        table = tables[0]
+
+        ot_cells = table.xpath('.//th[contains(@data-stat,"OT")]')
+        return bool(ot_cells)
+
+        """
+        rows = table.xpath('.//tbody/tr')
+        for row in rows:
+            ot_cells = row.xpath('.//td[contains(@data-stat,"OT")]')
+            if ot_cells and any(int(td.text_content().strip()) > 0 for td in ot_cells):
+                return True
+        """
+
+        return False
 
 class StatisticsTable:
     def __init__(self, html):

@@ -447,6 +447,7 @@ class PlayerBoxScoresParser:
                 "blocks": str_to_int(box_score.blocks),
                 "turnovers": str_to_int(box_score.turnovers),
                 "personal_fouls": str_to_int(box_score.personal_fouls),
+                "points": str_to_int(box_score.points),
                 "plus_minus": str_to_float(box_score.plus_minus),
                 "game_score": str_to_float(box_score.game_score),
             } for box_score in box_scores

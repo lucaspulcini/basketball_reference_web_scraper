@@ -10,6 +10,9 @@ class Outcome(Enum):
     WIN = "WIN"
     LOSS = "LOSS"
 
+class Overtime(Enum):
+    TRUE = "TRUE"
+    FALSE = "FALSE"
 
 class Team(Enum):
     ATLANTA_HAWKS = "ATLANTA HAWKS"

@@ -24,6 +24,7 @@ class ParserService:
             abbreviations_to_outcomes=OUTCOME_ABBREVIATIONS_TO_OUTCOME,
         )
         self.outcome_parser = PlayerBoxScoreOutcomeParser(outcome_abbreviation_parser=self.outcome_abbreviation_parser)
+        
         self.period_details_parser = PeriodDetailsParser(regulation_periods_count=4)
         self.period_timestamp_parser = PeriodTimestampParser(timestamp_format=ParserService.PLAY_BY_PLAY_TIMESTAMP_FORMAT)
         self.position_abbreviation_parser = PositionAbbreviationParser(
